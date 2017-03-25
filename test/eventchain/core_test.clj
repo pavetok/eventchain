@@ -1,7 +1,10 @@
 (ns eventchain.core-test
   (:require [clojure.test :refer :all]
             [datomic.api :as d]
-            [eventchain.core :refer :all]))
+            [eventchain.core :refer :all]
+            [eventchain.types :refer :all]
+            [eventchain.events :refer :all]
+            [eventchain.rules :refer :all]))
 
 (def ^:dynamic *conn* nil)
 
@@ -10,6 +13,8 @@
         db-uri (str "datomic:mem://" db-name)]
     (d/create-database db-uri)
     (let [conn (d/connect db-uri)]
+      @(d/transact conn simple-type-schema)
+      @(d/transact conn event-schema)
       @(d/transact conn rule-schema)
       conn)))
 
@@ -23,6 +28,14 @@
   (is (not (nil? *conn*)))
   (is (not (nil? (d/db *conn*))))
   (is (= 0 (rule-count (d/db *conn*)))))
+
+(deftest create-type
+  @(d/transact *conn* (type-new "MyType"))
+  (is (= 1 (type-count (d/db *conn*)))))
+
+(deftest create-event
+  @(d/transact *conn* (event-new "MyType"))
+  (is (= 1 (event-count (d/db *conn*)))))
 
 (deftest create-rule
   @(d/transact *conn* (rule-new "my-rule"))
