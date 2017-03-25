@@ -30,11 +30,12 @@
   (is (= 0 (rule-count (d/db *conn*)))))
 
 (deftest create-type
-  @(d/transact *conn* (type-new "MyType"))
+  @(d/transact *conn* (type-new :MyType))
   (is (= 1 (type-count (d/db *conn*)))))
 
 (deftest create-event
-  @(d/transact *conn* (event-new "MyType"))
+  @(d/transact *conn* (type-new :MyType))
+  @(d/transact *conn* (event-new :MyType))
   (is (= 1 (event-count (d/db *conn*)))))
 
 (deftest create-rule
