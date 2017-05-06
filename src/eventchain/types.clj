@@ -3,16 +3,11 @@
             [clojure.spec :as s]
             [datomic.api :as d]))
 
-(def simple-type-schema
-  [{:db/ident :evch.type/label
-    :db/valueType :db.type/keyword
+(def type-schema
+  [{:db/ident :type
+    :db/valueType :db.type/string
     :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/identity
-    :db/doc "Type label"}])
-
-; (def simple-type-schema
-;   [{:db/ident :MyType
-;     :db/doc "Type label"}])
+    :db/unique :db.unique/identity}])
 
 (defn type-new
   [label]

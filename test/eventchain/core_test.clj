@@ -4,21 +4,23 @@
             [eventchain.core :refer :all]
             [eventchain.types :refer :all]
             [eventchain.events :refer :all]
-            [eventchain.rules :refer :all]))
+            [eventchain.rules.db.schema :refer :all]))
 
 (def ^:dynamic *conn* nil)
 
-(defn fresh-database []
+(defn fresh-database
+  []
   (let [db-name (gensym)
         db-uri (str "datomic:mem://" db-name)]
     (d/create-database db-uri)
     (let [conn (d/connect db-uri)]
-      @(d/transact conn simple-type-schema)
+      @(d/transact conn type-schema)
       @(d/transact conn event-schema)
       @(d/transact conn rule-schema)
       conn)))
 
-(defn with-database [f]
+(defn with-database
+  [f]
   (binding [*conn* (fresh-database)]
     (f)))
 

@@ -4,7 +4,7 @@
             [datomic.api :as d]))
 
 (def event-schema
-  [{:db/ident :evch.event/type
+  [{:db/ident :event/type
     :db/valueType :db.type/ref
     :db/cardinality :db.cardinality/one
     :db/doc "Event type"}])
