@@ -1,6 +1,5 @@
 (ns eventchain.types
   (:require [clojure.string :as str]
-            [clojure.spec :as s]
             [datomic.api :as d]))
 
 (def type-schema

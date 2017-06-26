@@ -1,7 +1,6 @@
 (ns eventchain.core
   (:gen-class)
   (:require [clojure.string :as str]
-            [clojure.spec :as s]
             [datomic.api :as d]))
 
 (defn -main

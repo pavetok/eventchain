@@ -1,6 +1,5 @@
 (ns eventchain.events
   (:require [clojure.string :as str]
-            [clojure.spec :as s]
             [datomic.api :as d]))
 
 (def event-schema
