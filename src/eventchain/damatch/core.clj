@@ -41,52 +41,42 @@
   (= candidate '_))
 
 (defn match?
-  [data pattern]
-  (loop [ctx {:match? true
-              :vars {}}
-         p-loc (tree-zipper pattern)
-         d-loc (tree-zipper data)]
-    (let [p-node (zip/node p-loc)
-          d-node (zip/node d-loc)
-          p-next (zip/next p-loc)
-          d-next (zip/next d-loc)
-          falsify #(assoc ctx :match? false)]
-      (cond
-        (zip/end? p-loc) ctx
-        (zip/end? d-loc) (falsify)
-        (zip/branch? p-loc) (recur ctx p-next d-next)
-        (underscore? p-node) (recur ctx p-next d-next)
-        (variable? p-node) (assoc-in ctx [:vars p-node] d-node)
-        (not= p-node d-node) (falsify)
-        :else (recur ctx p-next d-next)))))
+  ([data pattern]
+   (loop [ctx {:match? true
+               :vars {}}
+          p-loc (tree-zipper pattern)
+          d-loc (tree-zipper data)]
+     (let [p-node (zip/node p-loc)
+           d-node (zip/node d-loc)
+           p-next (zip/next p-loc)
+           d-next (zip/next d-loc)
+           falsify #(assoc ctx :match? false)]
+       (cond
+         (zip/end? p-loc) ctx
+         (zip/end? d-loc) (falsify)
+         (zip/branch? p-loc) (recur ctx p-next d-next)
+         (underscore? p-node) (recur ctx p-next d-next)
+         (variable? p-node) (assoc-in ctx [:vars p-node] d-node)
+         (not= p-node d-node) (falsify)
+         :else (recur ctx p-next d-next)))))
+  ([data pattern template]
+   (let [result (match? data pattern)
+         names (vec (map key (:vars result)))
+         values (vals (:vars result))]
+     (when (:match? result) (t/apply-template names template values)))))
 
 (defn pattern-match?
-  [data pattern]
-  (match? data pattern))
-
-(defn data-match?
-  [pattern data]
-  (match? data pattern))
-
-(defn foo-foo
-  [data pattern template]
-  (let [result (match? data pattern)
-        names (vec (map key (:vars result)))
-        values (vals (:vars result))]
-    (when (:match? result) (t/apply-template names template values))))
-
-(defn bla-bla
   [data [pattern template]]
-  (foo-foo data pattern template))
+  (match? data pattern template))
 
 (defn pattern-match
   [data matchers]
-  (some (partial bla-bla data) (partition 2 matchers)))
+  (some (partial pattern-match? data) (partition 2 matchers)))
 
-(defn bar-bar
+(defn data-match?
   [pattern [data template]]
-  (foo-foo data pattern template))
+  (match? data pattern template))
 
 (defn data-match
   [pattern matchers]
-  (some (partial bar-bar pattern) (partition 2 matchers)))
+  (some (partial data-match? pattern) (partition 2 matchers)))

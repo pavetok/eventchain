@@ -7,33 +7,6 @@
             [clojure.spec.alpha :as s]
             [clojure.spec.test.alpha :as spec.test]))
 
-(defn passed?
-  [result]
-  (-> result
-      first
-      :clojure.spec.test.check/ret
-      :result))
-
-(s/def ::primitives (s/or :number number?
-                          :char char?
-                          :string string?))
-
-(s/def ::coll-of-primitives (s/or :vector (s/coll-of ::primitives :kind vector?)
-                                  :list (s/coll-of ::primitives :kind list?)
-                                  :set (s/coll-of ::primitives :kind set?)
-                                  :seq (s/coll-of ::primitives :kind seq?)))
-
-(s/def ::map-of-primitives (s/map-of keyword? ::primitives))
-
-(s/fdef sut/tree-branch?
-        :args (s/cat :0 (s/or :coll ::coll-of-primitives
-                              :map ::map-of-primitives))
-        :fn #(= (:ret %) (-> % :args :0 coll?))
-        :ret boolean?)
-
-(deftest spec-test-tree-branch?
-  (is (= true (passed? (spec.test/check `sut/tree-branch? {:clojure.spec.test.check/opts {:num-tests 25}})))))
-
 (def minimal-maps
   [{:1 1}
    {:1 {}}
@@ -184,7 +157,37 @@
   (is (= 1 (sut/pattern-match {:1 1} '[{:1 x} x])))
   (is (= 1 (sut/data-match '{:1 _} [{:1 1} 1]))))
 
+
+;; some experiments property/spec-based testing
+
 (defspec tree-branch?-should-correctly-handle-empty-colls
   (count empty-colls)
   (prop/for-all [empty-coll (gen/elements empty-colls)]
                 (= true (sut/tree-branch? empty-coll))))
+
+(defn passed?
+  [result]
+  (-> result
+      first
+      :clojure.spec.test.check/ret
+      :result))
+
+(s/def ::primitives (s/or :number number?
+                          :char char?
+                          :string string?))
+
+(s/def ::coll-of-primitives (s/or :vector (s/coll-of ::primitives :kind vector?)
+                                  :list (s/coll-of ::primitives :kind list?)
+                                  :set (s/coll-of ::primitives :kind set?)
+                                  :seq (s/coll-of ::primitives :kind seq?)))
+
+(s/def ::map-of-primitives (s/map-of keyword? ::primitives))
+
+(s/fdef sut/tree-branch?
+        :args (s/cat :0 (s/or :coll ::coll-of-primitives
+                              :map ::map-of-primitives))
+        :fn #(= (:ret %) (-> % :args :0 coll?))
+        :ret boolean?)
+
+(deftest spec-test-tree-branch?
+  (is (= true (passed? (spec.test/check `sut/tree-branch? {:clojure.spec.test.check/opts {:num-tests 25}})))))
