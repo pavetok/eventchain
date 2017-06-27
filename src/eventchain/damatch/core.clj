@@ -1,8 +1,6 @@
 (ns eventchain.damatch.core
   (:require [clojure.zip :as zip]
-            [clojure.spec.alpha :as s]
-            [clojure.template :as t]
-            [clojure.spec.test.alpha :as spec.test]))
+            [clojure.template :as t]))
 
 (defmulti tree-branch? class)
 (defmethod tree-branch? :default [_] false)
@@ -61,8 +59,8 @@
          :else (recur ctx p-next d-next)))))
   ([data pattern template]
    (let [result (match? data pattern)
-         names (vec (map key (:vars result)))
-         values (vals (:vars result))]
+         names (mapv key (:vars result))
+         values (mapv val (:vars result))]
      (when (:match? result) (t/apply-template names template values)))))
 
 (defn pattern-match?
