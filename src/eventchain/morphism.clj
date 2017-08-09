@@ -1,6 +1,5 @@
 (ns eventchain.morphism
   (:require [clojure.string :as str]
-            [clojure.spec :as s]
             [datomic.api :as d]))
 
 ; spec

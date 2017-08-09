@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [clojure.template :as t]
             [clojure.walk :as w]
-            [clojure.spec :as s]
             [datomic.api :as d]
             [eventchain.types :refer :all]
             [eventchain.events :refer :all]
